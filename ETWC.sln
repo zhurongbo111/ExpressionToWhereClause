@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2041
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionToWhereClause", "ExpressionToWhereClause\ExpressionToWhereClause.csproj", "{6E609333-C30D-4DAD-9AC1-3422BB5ADB22}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionToWhereClause.Test", "ExpressionToWhereClause.Test\ExpressionToWhereClause.Test.csproj", "{AEFAEC46-6AF2-4568-84F2-0A4F9FD0563C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6E609333-C30D-4DAD-9AC1-3422BB5ADB22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E609333-C30D-4DAD-9AC1-3422BB5ADB22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E609333-C30D-4DAD-9AC1-3422BB5ADB22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E609333-C30D-4DAD-9AC1-3422BB5ADB22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEFAEC46-6AF2-4568-84F2-0A4F9FD0563C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEFAEC46-6AF2-4568-84F2-0A4F9FD0563C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEFAEC46-6AF2-4568-84F2-0A4F9FD0563C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEFAEC46-6AF2-4568-84F2-0A4F9FD0563C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C96319F7-BA98-4D6F-A49B-8AC24690A085}
+	EndGlobalSection
+EndGlobal
