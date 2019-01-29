@@ -234,23 +234,7 @@ namespace ExpressionToWhereClause
 
         internal static object GetConstantByExpression(Expression expression)
         {
-            ConstantExpressionVisitor constantExpressionVisitor = null;
-            if (expression is ConstantExpression)
-            {
-                constantExpressionVisitor = new ConstantExpressionVisitor();
-            }
-            else if (expression is MemberExpression)
-            {
-                constantExpressionVisitor = new MemberConstantExpressionVisitor();
-            }
-            else if (expression is MethodCallExpression)
-            {
-                constantExpressionVisitor = new MethodConstantExpressionVisitor();
-            }
-            else
-            {
-                throw new Exception($"Unknow expression {expression.GetType()}");
-            }
+            IntangibleConstantExpressionVisitor constantExpressionVisitor = new IntangibleConstantExpressionVisitor();
             constantExpressionVisitor.Visit(expression);
             return constantExpressionVisitor.Value;
         }
