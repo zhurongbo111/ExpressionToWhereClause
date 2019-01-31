@@ -8,6 +8,7 @@
     <PackageProjectUrl>https://github.com/zhurongbo111/ExpressionToWhereClause</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/zhurongbo111/ExpressionToWhereClause/blob/master/LICENSE</PackageLicenseUrl>
     <Copyright>Copyright (c) 2019 Gary</Copyright>
+    <PackageTags>Expression,sql</PackageTags>
   </PropertyGroup>
 
 </Project>
