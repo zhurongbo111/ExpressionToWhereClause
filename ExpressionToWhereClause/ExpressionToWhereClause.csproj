@@ -2,10 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Authors>ExpressionToWhereClause</Authors>
     <Description>A simple tool library for converting the Expression to sql where clause</Description>
     <PackageProjectUrl>https://github.com/zhurongbo111/ExpressionToWhereClause</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/zhurongbo111/ExpressionToWhereClause/blob/master/LICENSE</PackageLicenseUrl>
+    <Copyright>Copyright (c) 2019 Gary</Copyright>
   </PropertyGroup>
 
 </Project>
