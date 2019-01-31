@@ -5,6 +5,7 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <Authors>ExpressionToWhereClause</Authors>
     <Description>A simple tool library for converting the Expression to sql where clause</Description>
+    <PackageProjectUrl>https://github.com/zhurongbo111/ExpressionToWhereClause</PackageProjectUrl>
   </PropertyGroup>
 
 </Project>
