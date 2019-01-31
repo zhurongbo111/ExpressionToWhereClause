@@ -14,7 +14,7 @@ NuGet feed: https://www.nuget.org/packages/ExpressionToWhereClause/
 
 Features
 --------
-ExpressionToWhereClause is a [NuGet library](https://www.nuget.org/packages/ExpressionToWhereClause) that you can add into your project that will extend your `Expression<Func<TModel, bool>>` interface.
+ExpressionToWhereClause is a [NuGet library](https://www.nuget.org/packages/ExpressionToWhereClause) that you can add into your project that will extend your `Expression<Func<TModel, bool>>` type.
 
 It provides only one Method:
 
