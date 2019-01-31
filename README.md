@@ -26,7 +26,7 @@ It provides only one Method:
 Example usage:
 
 ```csharp
- [TestClass]
+    [TestClass]
     public class ExpressionTest
     {
         [TestMethod]
