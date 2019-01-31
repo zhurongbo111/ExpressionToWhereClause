@@ -14,11 +14,11 @@ NuGet feed: https://www.nuget.org/packages/ExpressionToWhereClause/
 
 Features
 --------
-ExpressionToWhereClause is a [NuGet library](https://www.nuget.org/packages/ExpressionToWhereClause) that you can add in to your project that will extend your `Expression<Func<TModel, bool>>` interface.
+ExpressionToWhereClause is a [NuGet library](https://www.nuget.org/packages/ExpressionToWhereClause) that you can add into your project that will extend your `Expression<Func<TModel, bool>>` interface.
 
 It provides only one Method:
 
-####Explain of Type `Expression<Func<TModel, bool>>` to the Parametric sql where clause and the parameters list
+**Explain of Type `Expression<Func<TModel, bool>>` to the Parametric sql where clause and the parameters list**
 
 ```csharp
  public static (string, Dictionary<string, object>) ToWhereClause<T>(this Expression<Func<T, bool>> expression) where T : class
