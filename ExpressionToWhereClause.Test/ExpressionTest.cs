@@ -13,24 +13,21 @@ namespace ExpressionToWhereClause.Test
         [TestMethod]
         public void ValidateBool()
         {
-            Expression<Func<User, bool>> expression = u => u.Sex && u.Age > 20;
+            Expression<Func<User, bool>> expression = u => u.Sex;
             
             (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
             expectedParameters.Add("@Sex", true);
-            expectedParameters.Add("@Age", 20);
-            Assert.AreEqual("(Sex = @Sex) AND (Age > @Age)", sql);
+            Assert.AreEqual("Sex = @Sex", sql);
             AssertParameters(expectedParameters, parameters);
-
         }
-
         [TestMethod]
         public void ValidateBool2()
         {
-            Expression<Func<User, bool>> expression = u => u.Sex == true;
+            Expression<Func<User, bool>> expression = u => u.Sex == false;
             (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
-            expectedParameters.Add("@Sex", true);
+            expectedParameters.Add("@Sex", false);
             Assert.AreEqual("Sex = @Sex", sql);
             AssertParameters(expectedParameters, parameters);
 
@@ -40,35 +37,110 @@ namespace ExpressionToWhereClause.Test
         public void ValidateConstant()
         {
             Expression<Func<User, bool>> expression = u => u.Age >= 20;
-            (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
             expectedParameters.Add("@Age", 20);
-            Assert.AreEqual("Age >= @Age", sql);
+            Assert.AreEqual("Age >= @Age", whereClause);
             AssertParameters(expectedParameters, parameters);
-            
+        }
+
+        [TestMethod]
+        public void ValidateAnd()
+        {
+            Expression<Func<User, bool>> expression = u => u.Sex && u.Age > 20;
+
+            (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            expectedParameters.Add("@Sex", true);
+            expectedParameters.Add("@Age", 20);
+            Assert.AreEqual("(Sex = @Sex) AND (Age > @Age)", sql);
+            AssertParameters(expectedParameters, parameters);
+        }
+
+        [TestMethod]
+        public void ValidateOr()
+        {
+            Expression<Func<User, bool>> expression = u => u.Sex || u.Age > 20;
+
+            (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            expectedParameters.Add("@Sex", true);
+            expectedParameters.Add("@Age", 20);
+            Assert.AreEqual("(Sex = @Sex) OR (Age > @Age)", sql);
+            AssertParameters(expectedParameters, parameters);
+        }
+
+        [TestMethod]
+        public void ValidateDuplicateField()
+        {
+            Expression<Func<User, bool>> expression = u => u.Age < 15 || u.Age > 20;
+
+            (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            expectedParameters.Add("@Age", 15);
+            expectedParameters.Add("@Age1", 20);
+            Assert.AreEqual("(Age < @Age) OR (Age > @Age1)", sql);
+            AssertParameters(expectedParameters, parameters);
         }
 
         [TestMethod]
         public void ValidateMemberConstant()
         {
             UserFilter userFilter = new UserFilter();
-            userFilter.Internal.Age = 20;
-            Expression<Func<User, bool>> expression = u => u.Age < userFilter.Internal.Age;
-            (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            userFilter.Age = 20;
+            Expression<Func<User, bool>> expression = u => u.Age < userFilter.Age;
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
             expectedParameters.Add("@Age", 20);
-            Assert.AreEqual("Age < @Age", sql);
+            Assert.AreEqual("Age < @Age", whereClause);
+            AssertParameters(expectedParameters, parameters);
+        }
+
+
+
+        [TestMethod]
+        public void ValidateDeepMemberConstant()
+        {
+            UserFilter userFilter = new UserFilter();
+            userFilter.Internal.Age = 20;
+            Expression<Func<User, bool>> expression = u => u.Age < userFilter.Internal.Age;
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            expectedParameters.Add("@Age", 20);
+            Assert.AreEqual("Age < @Age", whereClause);
             AssertParameters(expectedParameters, parameters);
         }
 
         [TestMethod]
-        public void ValidateMethodConstant()
+        public void ValidateInstanceMethodConstant()
         {
-            Expression<Func<User, bool>> expression = u => u.Age < int.Parse(GetInt().ToString());
-            (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            Expression<Func<User, bool>> expression = u => u.Age < GetInt();
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
             expectedParameters.Add("@Age", 20);
-            Assert.AreEqual("Age < @Age", sql);
+            Assert.AreEqual("Age < @Age", whereClause);
+            AssertParameters(expectedParameters, parameters);
+        }
+
+        [TestMethod]
+        public void ValidateStaticMethodConstant()
+        {
+            Expression<Func<User, bool>> expression = u => u.Age < UserFilter.GetInt(20);
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            expectedParameters.Add("@Age", 20);
+            Assert.AreEqual("Age < @Age", whereClause);
+            AssertParameters(expectedParameters, parameters);
+        }
+
+        [TestMethod]
+        public void ValidateMethodChainConstant()
+        {
+            Expression<Func<User, bool>> expression = u => u.Age < int.Parse(GetInt().ToString());
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            expectedParameters.Add("@Age", 20);
+            Assert.AreEqual("Age < @Age", whereClause);
             AssertParameters(expectedParameters, parameters);
         }
 
@@ -78,55 +150,36 @@ namespace ExpressionToWhereClause.Test
             UserFilter userFilter = new UserFilter();
             userFilter.Internal.Age = 20;
             Expression<Func<User, bool>> expression = u => u.Age < GetInt(userFilter.Internal.Age);
-            (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
             expectedParameters.Add("@Age", 20);
-            Assert.AreEqual("Age < @Age", sql);
+            Assert.AreEqual("Age < @Age", whereClause);
             AssertParameters(expectedParameters, parameters);
         }
 
         [TestMethod]
-        public void ValidateComplexSql()
-        {
-            UserFilter filter = new UserFilter();
-            filter.Internal.Age = 20;
-            Expression<Func<User, bool>> expression = u => ((u.Sex && u.Age > 18) || (u.Sex == false && u.Age > filter.Internal.Age))&& (u.Name == GetInt().ToString() || u.Name == int.Parse(UserFilter.GetInt(20).ToString()).ToString());
-            (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
-            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
-            expectedParameters.Add("@Sex", true);
-            expectedParameters.Add("@Age", 18);
-            expectedParameters.Add("@Sex1", false);
-            expectedParameters.Add("@Age1", 20);
-            expectedParameters.Add("@Name", "20");
-            expectedParameters.Add("@Name1", "20");
-            Assert.AreEqual("(((Sex = @Sex) AND (Age > @Age)) OR ((Sex = @Sex1) AND (Age > @Age1))) AND ((Name = @Name) OR (Name = @Name1))", sql);
-            AssertParameters(expectedParameters, parameters);
-
-        }
-
-        [TestMethod]
-        public void ValidateEqual()
+        public void ValidateEqualMethod()
         {
             UserFilter filter = new UserFilter();
             filter.Name = "Name";
             Expression<Func<User, bool>> expression = u => u.Name.Equals(filter.Name.Substring(1));
-            (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
             expectedParameters.Add("@Name", "ame");
-            Assert.AreEqual("Name = @Name", sql);
+            Assert.AreEqual("Name = @Name", whereClause);
             AssertParameters(expectedParameters, parameters);
         }
 
         [TestMethod]
-        public void ValidateStartWith()
+        public void ValidateStartsWithMethod()
         {
             UserFilter filter = new UserFilter();
             filter.Name = "Name";
             Expression<Func<User, bool>> expression = u => u.Name.StartsWith(filter.Name);
-            (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
             expectedParameters.Add("@Name", "Name");
-            Assert.AreEqual("Name like @Name'%'", sql);
+            Assert.AreEqual("Name like @Name'%'", whereClause);
             AssertParameters(expectedParameters, parameters);
         }
 
@@ -136,37 +189,37 @@ namespace ExpressionToWhereClause.Test
             UserFilter filter = new UserFilter();
             filter.Name = "Name";
             Expression<Func<User, bool>> expression = u => u.Name.StartsWith(filter.Name) || u.Name.Contains("Start");
-            (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
             expectedParameters.Add("@Name", "Name");
             expectedParameters.Add("@Name1", "Start");
-            Assert.AreEqual("(Name like @Name'%') OR (Name like '%'@Name1'%')", sql);
+            Assert.AreEqual("(Name like @Name'%') OR (Name like '%'@Name1'%')", whereClause);
             AssertParameters(expectedParameters, parameters);
         }
 
         [TestMethod]
-        public void ValidateEndsWith()
+        public void ValidateEndsWithMethod()
         {
             UserFilter filter = new UserFilter();
             filter.Name = "Name";
             Expression<Func<User, bool>> expression = u => u.Name.EndsWith(filter.Name);
-            (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
             expectedParameters.Add("@Name", "Name");
-            Assert.AreEqual("Name like '%'@Name", sql);
+            Assert.AreEqual("Name like '%'@Name", whereClause);
             AssertParameters(expectedParameters, parameters);
         }
 
         [TestMethod]
-        public void ValidateContains()
+        public void ValidateContainsMethod()
         {
             UserFilter filter = new UserFilter();
             filter.Name = "Name";
             Expression<Func<User, bool>> expression = u => u.Name.Contains(filter.Name);
-            (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
             expectedParameters.Add("@Name", "Name");
-            Assert.AreEqual("Name like '%'@Name'%'", sql);
+            Assert.AreEqual("Name like '%'@Name'%'", whereClause);
             AssertParameters(expectedParameters, parameters);
         }
 
@@ -199,10 +252,31 @@ namespace ExpressionToWhereClause.Test
                 }
             });
             Expression<Func<User, bool>> expression = u => u.Name == "Name";
-            (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
             expectedParameters.Add("@Username", "Name");
-            Assert.AreEqual("Username = @Username", sql);
+            Assert.AreEqual("Username = @Username", whereClause);
+            AssertParameters(expectedParameters, parameters);
+        }
+
+        [TestMethod]
+        public void ValidateAll()
+        {
+            UserFilter filter = new UserFilter();
+            filter.Internal.Age = 20;
+            filter.Name = "Gary";
+            Expression<Func<User, bool>> expression = 
+                u => ((u.Sex && u.Age > 18) || (u.Sex == false && u.Age > filter.Internal.Age)) 
+                  && (u.Name == filter.Name || u.Name.Contains(filter.Name.Substring(1,2)));
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            expectedParameters.Add("@Sex", true);
+            expectedParameters.Add("@Age", 18);
+            expectedParameters.Add("@Sex1", false);
+            expectedParameters.Add("@Age1", 20);
+            expectedParameters.Add("@Name", "Gary");
+            expectedParameters.Add("@Name1", "ar");
+            Assert.AreEqual("(((Sex = @Sex) AND (Age > @Age)) OR ((Sex = @Sex1) AND (Age > @Age1))) AND ((Name = @Name) OR (Name like '%'@Name1'%'))", whereClause);
             AssertParameters(expectedParameters, parameters);
         }
 
