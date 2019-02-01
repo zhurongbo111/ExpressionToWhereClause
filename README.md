@@ -36,7 +36,10 @@ Or
 ```csharp
 u.Name == "Foo" || u.Name == "Bar"
 ```
-<font color=#c9302c size=72>Warning: This library dose not support Unary, like `u => !(u.Name == "Foo")`, but support `u => u.Name != "Foo"`</font>
+
+The `[Value]` can be from many places, not onlt the constant. From the detailed information, please see the example usage.
+
+<font color=#c9302c size=72>Warning:</font> This library dose not support Unary, like `u => !(u.Name == "Foo")`, but support `u => u.Name != "Foo"`
 
 **Example usage:**
 
