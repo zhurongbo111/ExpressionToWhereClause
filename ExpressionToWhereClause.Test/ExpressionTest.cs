@@ -186,7 +186,7 @@ namespace ExpressionToWhereClause.Test
         public void ValidateTernary()
         {
             string name = "Gary";
-            Expression<Func<User, bool>> expression = u => u.Name == (name != null ? "Foo" : name);
+            Expression<Func<User, bool>> expression = u => u.Name == (name == null ? "Foo" : name);
             (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
             expectedParameters.Add("@Name", "Foo");
