@@ -39,9 +39,7 @@ u.Name == "Foo" || u.Name == "Bar"
 
 The `[Value]` can be from many places, not onlt the constant. From the detailed information, please see the example usage.
 
-```diff
-- Warning: This library dose not support Unary, like `u => !(u.Name == "Foo")`, but support `u => u.Name != "Foo"`
-```
+![#1589F0](https://placehold.it/15/1589F0/000000?text=+)  Warning: This library dose not support Unary, like `u => !(u.Name == "Foo")`, but support `u => u.Name != "Foo"`
 
 **Example usage:**
 
