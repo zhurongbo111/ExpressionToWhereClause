@@ -21,7 +21,7 @@ It provides only one Method:
 **Explain of Type `Expression<Func<TModel, bool>>` to the `parametric` sql where clause and the parameter list**
 
 ```csharp
- public static (string, Dictionary<string, object>) ToWhereClause<T>(this Expression<Func<T, bool>> expression) where T : class
+ public static (string, Dictionary<string, object>) ToWhereClause<T>(this Expression<Func<T, bool>> expression, bool? nonParametric = null) where T : class
 ```
 
 The the right part of `Func<TModel, bool>` must like:
@@ -39,7 +39,7 @@ u.Name == "Foo" || u.Name == "Bar"
 
 The `[Value]` can be from many places, not only the constant. From the detailed information, please see the example usage.
 
-![#f03c15](https://placehold.it/15/f03c15/000000?text=+)  Warning: This library dose not support Unary, like `u => !(u.Name == "Foo")`, but support `u => u.Name != "Foo"`
+![#f03c15](https://placehold.it/15/f03c15/000000?text=+)  Warning: This library dose not support unary, like `u => !(u.Name == "Foo")`, but support `u => u.Name != "Foo"` and `u => !u.Sex` Sex is bool typr
 --------
 
 
