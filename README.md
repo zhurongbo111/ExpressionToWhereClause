@@ -26,7 +26,7 @@ It provides only one Method:
 
 The the right part of `Func<TModel, bool>` must like:
 
-`[t].[PropertyName]`   `[comparator]`   `[Value]`, or the combinations.
+`[model].[PropertyName]`   `[comparator]`   `[Value]`, or the combinations.
 
 **Example:**
 ```csharp
