@@ -247,6 +247,14 @@ namespace ExpressionToWhereClause
             {
                 constantExpressionVisitor = new MethodConstantExpressionVisitor();
             }
+            else if (expression is ConditionalExpression)
+            {
+                constantExpressionVisitor = new ConditionalConstantExpressionVisitor();
+            }
+            else if( expression.GetType().Name == "MethodBinaryExpression")
+            {
+                constantExpressionVisitor = new MethodBinaryConstantExpressionVisitor();
+            }
             else
             {
                 throw new Exception($"Unknow expression {expression.GetType()}");

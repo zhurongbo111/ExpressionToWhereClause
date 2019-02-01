@@ -183,6 +183,18 @@ namespace ExpressionToWhereClause.Test
         }
 
         [TestMethod]
+        public void ValidateTernary()
+        {
+            string name = "Gary";
+            Expression<Func<User, bool>> expression = u => u.Name == (name != null ? "Foo" : name);
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            expectedParameters.Add("@Name", "Foo");
+            Assert.AreEqual("Name = @Name", whereClause);
+            AssertParameters(expectedParameters, parameters);
+        }
+
+        [TestMethod]
         public void ValidateNotEqual()
         {
             Expression<Func<User, bool>> expression = u => u.Age != 20;
