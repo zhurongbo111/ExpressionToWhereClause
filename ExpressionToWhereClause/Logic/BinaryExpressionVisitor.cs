@@ -15,12 +15,12 @@ namespace ExpressionToWhereClause
             }
             else if (IsLogicType(node.NodeType))
             {
-                string leftClause = GetSqlByExpression(node.Left);
+                string leftClause = ExpressionEntry.GetWhereClauseByExpression(node.Left);
                 sb.Append($"({leftClause})");
 
                 sb.Append($" {ConvertExpressionTypeToSymbol(node.NodeType)} ");
 
-                string rightClause = GetSqlByExpression(node.Right);
+                string rightClause = ExpressionEntry.GetWhereClauseByExpression(node.Right);
                 sb.Append($"({rightClause})");
             }
             else
@@ -38,32 +38,6 @@ namespace ExpressionToWhereClause
             string parameterName = ExpressionEntry.EnsureKey(fieldName);
             string sql = $"{fieldName} {ConvertExpressionTypeToSymbol(node.NodeType)} @{parameterName}";
             ExpressionEntry.Parameters.Add($"@{parameterName}", ExpressionEntry.GetConstantByExpression(node.Right));
-            return sql;
-        }
-
-
-        private string GetSqlByExpression(Expression expression)
-        {
-            BaseExpressionVisitor expressionVisitor = null;
-            if(expression is BinaryExpression)
-            {
-                expressionVisitor = new BinaryExpressionVisitor();
-            }
-            else if(expression is MemberExpression)
-            {
-                expressionVisitor = new BooleanMemberExpressionVisitor();
-            }
-            else if(expression is MethodCallExpression)
-            {
-                expressionVisitor = new MethodCallExpressionVisitor();
-            }
-            else
-            {
-                throw new NotSupportedException($"Unknow expression {expression.GetType()}");
-            }
-
-            expressionVisitor.Visit(expression);
-            string sql = expressionVisitor.GetResult();
             return sql;
         }
     }

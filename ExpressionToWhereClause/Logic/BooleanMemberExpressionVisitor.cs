@@ -7,6 +7,11 @@ namespace ExpressionToWhereClause
 {
     internal class BooleanMemberExpressionVisitor : MemberExpressionVisitor
     {
+        protected virtual bool GetConstant()
+        {
+            return true;
+        }
+
         protected override Expression VisitMember(MemberExpression node)
         {
             base.VisitMember(node);
@@ -15,7 +20,7 @@ namespace ExpressionToWhereClause
 
             string parameterName = ExpressionEntry.EnsureKey(fieldName);
             sb.Append($"{fieldName} = @{parameterName}");
-            ExpressionEntry.Parameters.Add($"@{parameterName}", true);
+            ExpressionEntry.Parameters.Add($"@{parameterName}", GetConstant());
             return node;
         }
     }

@@ -15,7 +15,19 @@ namespace ExpressionToWhereClause
 
         public virtual string GetResult()
         {
-            return sb.ToString();
+            string sql = sb.ToString();
+           
+            if (ExpressionEntry.NonParametric != null && ExpressionEntry.NonParametric.Value)
+            {
+                foreach (var kv in ExpressionEntry.Parameters)
+                {
+                    sql = sql.Replace($"{kv.Key}", $"'{kv.Value.ToString()}'");
+                    sql = sql.Replace("%''", "%");
+                    sql = sql.Replace("''%", "%");
+                }
+                ExpressionEntry.Parameters.Clear();
+            }
+            return sql;
         }
 
         protected string ConvertExpressionTypeToSymbol(ExpressionType expressionType)
@@ -37,6 +49,8 @@ namespace ExpressionToWhereClause
                     return ">=";
                 case ExpressionType.LessThanOrEqual:
                     return "<=";
+                case ExpressionType.NotEqual:
+                    return "<>";
                 default:
                     throw new NotSupportedException($"Unknown ExpressionType {expressionType}");
             }
@@ -51,6 +65,7 @@ namespace ExpressionToWhereClause
                 case ExpressionType.GreaterThan:
                 case ExpressionType.GreaterThanOrEqual:
                 case ExpressionType.LessThanOrEqual:
+                case ExpressionType.NotEqual:
                     return true;
                 default:
                     return false;
