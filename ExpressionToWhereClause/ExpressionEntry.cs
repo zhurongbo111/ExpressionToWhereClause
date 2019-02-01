@@ -10,6 +10,9 @@ namespace ExpressionToWhereClause
         [ThreadStatic]
         internal static Dictionary<string, object> Parameters = new Dictionary<string, object>();
 
+        [ThreadStatic]
+        internal static bool? NonParametric = null;
+
         internal static Func<System.Reflection.MemberInfo, string> FieldNameSelector = null;
 
         private string sql = string.Empty;

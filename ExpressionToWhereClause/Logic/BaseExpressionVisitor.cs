@@ -15,7 +15,19 @@ namespace ExpressionToWhereClause
 
         public virtual string GetResult()
         {
-            return sb.ToString();
+            string sql = sb.ToString();
+           
+            if (ExpressionEntry.NonParametric != null && ExpressionEntry.NonParametric.Value)
+            {
+                foreach (var kv in ExpressionEntry.Parameters)
+                {
+                    sql = sql.Replace($"{kv.Key}", $"'{kv.Value.ToString()}'");
+                    sql = sql.Replace("%''", "%");
+                    sql = sql.Replace("''%", "%");
+                }
+                ExpressionEntry.Parameters.Clear();
+            }
+            return sql;
         }
 
         protected string ConvertExpressionTypeToSymbol(ExpressionType expressionType)
