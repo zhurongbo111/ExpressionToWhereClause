@@ -23,7 +23,21 @@ It provides only one Method:
 ```csharp
  public static (string, Dictionary<string, object>) ToWhereClause<T>(this Expression<Func<T, bool>> expression) where T : class
 ```
+
+The the right part of `Func<TModel, bool>` must like:
+[variablename].[PropertyName] [comparator] [Value], or the combination.
+
+Example:
+
 Example usage:
+```csharp
+u.Name == "Foo"
+```
+Or
+```csharp
+u.Name == "Foo" || u.Name == "Bar"
+```
+
 
 ```csharp
 [TestClass]
