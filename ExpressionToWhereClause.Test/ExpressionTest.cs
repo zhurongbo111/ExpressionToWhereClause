@@ -13,7 +13,7 @@ namespace ExpressionToWhereClause.Test
         [TestMethod]
         public void ValidateBool()
         {
-            Expression<Func<User, bool>> expression = u => u.Sex == false;
+            Expression<Func<User, bool>> expression = u => !u.Sex;
             
             (string sql, Dictionary<string, object> parameters) = expression.ToWhereClause();
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
@@ -303,7 +303,7 @@ namespace ExpressionToWhereClause.Test
             filter.Internal.Age = 20;
             filter.Name = "Gary";
             Expression<Func<User, bool>> expression =
-                u => ((u.Sex && u.Age > 18) || (u.Sex == false && u.Age > filter.Internal.Age))
+                u => ((u.Sex && u.Age > 18) || (!u.Sex && u.Age > filter.Internal.Age))
                   && (u.Name == filter.Name || u.Name.Contains(filter.Name.Substring(1, 2)));
             (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause(true);
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
