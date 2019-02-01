@@ -37,6 +37,8 @@ namespace ExpressionToWhereClause
                     return ">=";
                 case ExpressionType.LessThanOrEqual:
                     return "<=";
+                case ExpressionType.NotEqual:
+                    return "<>";
                 default:
                     throw new NotSupportedException($"Unknown ExpressionType {expressionType}");
             }
@@ -51,6 +53,7 @@ namespace ExpressionToWhereClause
                 case ExpressionType.GreaterThan:
                 case ExpressionType.GreaterThanOrEqual:
                 case ExpressionType.LessThanOrEqual:
+                case ExpressionType.NotEqual:
                     return true;
                 default:
                     return false;

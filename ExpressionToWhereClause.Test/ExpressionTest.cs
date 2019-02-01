@@ -45,6 +45,18 @@ namespace ExpressionToWhereClause.Test
         }
 
         [TestMethod]
+        public void ValidateVariable()
+        {
+            int age = 20;
+            Expression<Func<User, bool>> expression = u => u.Age >= age;
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            expectedParameters.Add("@Age", 20);
+            Assert.AreEqual("Age >= @Age", whereClause);
+            AssertParameters(expectedParameters, parameters);
+        }
+
+        [TestMethod]
         public void ValidateAnd()
         {
             Expression<Func<User, bool>> expression = u => u.Sex && u.Age > 20;
@@ -171,6 +183,18 @@ namespace ExpressionToWhereClause.Test
         }
 
         [TestMethod]
+        public void ValidateNotEqual()
+        {
+            Expression<Func<User, bool>> expression = u => u.Age != 20;
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            expectedParameters.Add("@Age", 20);
+
+            Assert.AreEqual("Age <> @Age", whereClause);
+            AssertParameters(expectedParameters, parameters);
+        }
+
+        [TestMethod]
         public void ValidateStartsWithMethod()
         {
             UserFilter filter = new UserFilter();
@@ -277,6 +301,19 @@ namespace ExpressionToWhereClause.Test
             expectedParameters.Add("@Name", "Gary");
             expectedParameters.Add("@Name1", "ar");
             Assert.AreEqual("(((Sex = @Sex) AND (Age > @Age)) OR ((Sex = @Sex1) AND (Age > @Age1))) AND ((Name = @Name) OR (Name like '%'@Name1'%'))", whereClause);
+            AssertParameters(expectedParameters, parameters);
+        }
+
+        [TestMethod]
+        public void ValidateInvoke()
+        {
+            Func<User, bool> func= u => u.Age > 20;
+            Expression<Func<User, bool>> expression = u=> func(u);
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            expectedParameters.Add("@Age", 20);
+
+            Assert.AreEqual("Age > @Age", whereClause);
             AssertParameters(expectedParameters, parameters);
         }
 
