@@ -2,7 +2,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 
 namespace ExpressionToWhereClause.Test
@@ -396,5 +395,16 @@ namespace ExpressionToWhereClause.Test
         public bool Sex { get; set; }
 
         public int Age { get; set; }
+    }
+
+    public class ColumnAttribute : Attribute
+    {
+        public ColumnAttribute(string name)
+        {
+            this.Name = name;
+        }
+
+
+        public string Name { get; set; }
     }
 }
