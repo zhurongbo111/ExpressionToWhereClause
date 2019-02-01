@@ -25,11 +25,10 @@ It provides only one Method:
 ```
 
 The the right part of `Func<TModel, bool>` must like:
-[variablename].[PropertyName] [comparator] [Value], or the combination.
 
-Example:
+`[t].[PropertyName]`   `[comparator]`   `[Value]`, or the combinations.
 
-Example usage:
+**Example:**
 ```csharp
 u.Name == "Foo"
 ```
@@ -37,7 +36,9 @@ Or
 ```csharp
 u.Name == "Foo" || u.Name == "Bar"
 ```
+<font color=#c9302c size=72>Warning: This library dose not support Unary, like `u => !(u.Name == "Foo")`, but support `u => u.Name != "Foo"`</font>
 
+**Example usage:**
 
 ```csharp
 [TestClass]
