@@ -343,7 +343,7 @@ namespace ExpressionToWhereClause.Test
         [TestMethod]
         public void ValidateMultipleThreads()
         {
-            int successfulCount = 0;
+            ConcurrentBag<int> countList = new ConcurrentBag<int>();
             int count = 20;
             List<Task> tasks = new List<Task>();
             for (int i = 0; i < count; i++)
@@ -367,7 +367,7 @@ namespace ExpressionToWhereClause.Test
                     Assert.AreEqual("(((Sex = 'True') AND (Age > '18')) OR ((Sex = 'False') AND (Age > '20'))) AND ((Name = 'Gary"+k+"') OR (Name like '%ar%'))", whereClause);
                     Assert.AreEqual(whereClause, expression.ToWhereClauseNonParametric());
                     Assert.AreEqual(0, parameters.Count);
-                    successfulCount++;
+                    countList.Add(0);
                 });
 
                 tasks.Add(task);
@@ -392,14 +392,14 @@ namespace ExpressionToWhereClause.Test
                     expectedParameters.Add("@Name1", "ar");
                     Assert.AreEqual("(((Sex = @Sex) AND (Age > @Age)) OR ((Sex = @Sex1) AND (Age > @Age1))) AND ((Name = @Name) OR (Name like '%'@Name1'%'))", whereClause);
                     AssertParameters(expectedParameters, parameters);
-                    successfulCount++;
+                    countList.Add(0);
                 });
 
                 tasks.Add(task);
             }
 
             Task.WaitAll(tasks.ToArray());
-            Assert.AreEqual(count*2, successfulCount);
+            Assert.AreEqual(count*2, countList.Count);
         }
 
 
