@@ -5,14 +5,21 @@ using System.Text;
 
 namespace ExpressionToWhereClause
 {
-    internal class ExpressionEntry :ExpressionVisitor
+    internal class ExpressionEntry : ExpressionVisitor
     {
         [ThreadStatic]
-        internal static Dictionary<string, object> Parameters =null;
-
-        public ExpressionEntry()
+        private static Dictionary<string, object> _parameters = null;
+        
+        internal static Dictionary<string, object> Parameters
         {
-            Parameters = new Dictionary<string, object>();
+            get
+            {
+                if(_parameters == null)
+                {
+                    _parameters = new Dictionary<string, object>();
+                }
+                return _parameters;
+            }
         }
 
         [ThreadStatic]
