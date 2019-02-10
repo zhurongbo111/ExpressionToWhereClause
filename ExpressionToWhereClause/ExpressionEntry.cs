@@ -8,7 +8,12 @@ namespace ExpressionToWhereClause
     internal class ExpressionEntry :ExpressionVisitor
     {
         [ThreadStatic]
-        internal static Dictionary<string, object> Parameters = new Dictionary<string, object>();
+        internal static Dictionary<string, object> Parameters =null;
+
+        public ExpressionEntry()
+        {
+            Parameters = new Dictionary<string, object>();
+        }
 
         [ThreadStatic]
         internal static bool? NonParametric = null;

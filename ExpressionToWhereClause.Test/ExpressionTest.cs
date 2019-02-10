@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace ExpressionToWhereClause.Test
 {
@@ -337,6 +339,69 @@ namespace ExpressionToWhereClause.Test
             Assert.AreEqual("(((Sex = @Sex) AND (Age > @Age)) OR ((Sex = @Sex1) AND (Age > @Age1))) AND ((Name = @Name) OR (Name like '%'@Name1'%'))", whereClause);
             AssertParameters(expectedParameters, parameters);
         }
+
+        [TestMethod]
+        public void ValidateMultipleThreads()
+        {
+            int successfulCount = 0;
+            int count = 20;
+            List<Task> tasks = new List<Task>();
+            for (int i = 0; i < count; i++)
+            {
+                int k = i;
+                Task task = Task.Run(() => {
+                    UserFilter filter = new UserFilter();
+                    filter.Internal.Age = 20;
+                    filter.Name = "Gary"+k;
+                    Expression<Func<User, bool>> expression =
+                        u => ((u.Sex && u.Age > 18) || (!u.Sex && u.Age > filter.Internal.Age))
+                          && (u.Name == filter.Name || u.Name.Contains(filter.Name.Substring(1, 2)));
+                    (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause(true);
+                    Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+                    expectedParameters.Add("@Sex", true);
+                    expectedParameters.Add("@Age", 18);
+                    expectedParameters.Add("@Sex1", false);
+                    expectedParameters.Add("@Age1", 20);
+                    expectedParameters.Add("@Name", "Gary"+k);
+                    expectedParameters.Add("@Name1", "ar");
+                    Assert.AreEqual("(((Sex = 'True') AND (Age > '18')) OR ((Sex = 'False') AND (Age > '20'))) AND ((Name = 'Gary"+k+"') OR (Name like '%ar%'))", whereClause);
+                    Assert.AreEqual(whereClause, expression.ToWhereClauseNonParametric());
+                    Assert.AreEqual(0, parameters.Count);
+                    successfulCount++;
+                });
+
+                tasks.Add(task);
+            }
+            for (int i = 0; i < count; i++)
+            {
+                int k = i;
+                Task task = Task.Run(() => {
+                    UserFilter filter = new UserFilter();
+                    filter.Internal.Age = 20;
+                    filter.Name = "Gary"+k;
+                    Expression<Func<User, bool>> expression =
+                        u => ((u.Sex && u.Age > 18) || (u.Sex == false && u.Age > filter.Internal.Age))
+                          && (u.Name == filter.Name || u.Name.Contains(filter.Name.Substring(1, 2)));
+                    (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
+                    Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+                    expectedParameters.Add("@Sex", true);
+                    expectedParameters.Add("@Age", 18);
+                    expectedParameters.Add("@Sex1", false);
+                    expectedParameters.Add("@Age1", 20);
+                    expectedParameters.Add("@Name", "Gary"+k);
+                    expectedParameters.Add("@Name1", "ar");
+                    Assert.AreEqual("(((Sex = @Sex) AND (Age > @Age)) OR ((Sex = @Sex1) AND (Age > @Age1))) AND ((Name = @Name) OR (Name like '%'@Name1'%'))", whereClause);
+                    AssertParameters(expectedParameters, parameters);
+                    successfulCount++;
+                });
+
+                tasks.Add(task);
+            }
+
+            Task.WaitAll(tasks.ToArray());
+            Assert.AreEqual(count*2, successfulCount);
+        }
+
 
         [TestCleanup]
         public void Cleanup()
