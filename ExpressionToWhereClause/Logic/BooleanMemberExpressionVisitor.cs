@@ -15,7 +15,7 @@ namespace ExpressionToWhereClause
         protected override Expression VisitMember(MemberExpression node)
         {
             base.VisitMember(node);
-            string fieldName = GetResult();
+            string fieldName = GetResult().ToString();
             sb.Clear();
 
             string parameterName = ExpressionEntry.EnsureKey(fieldName);

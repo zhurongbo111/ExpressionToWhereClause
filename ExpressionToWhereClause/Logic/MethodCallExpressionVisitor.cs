@@ -32,7 +32,7 @@ namespace ExpressionToWhereClause
             {
                 MemberExpressionVisitor memberExpressionVisitor = new MemberExpressionVisitor();
                 memberExpressionVisitor.Visit(node.Object);
-                string fieldName = memberExpressionVisitor.GetResult();
+                string fieldName = memberExpressionVisitor.GetResult().ToString();
                 string parameterName = ExpressionEntry.EnsureKey(fieldName);
                 string sql = string.Format($"{fieldName} {symbol}", $"@{parameterName}");
                 sb.Append(sql);

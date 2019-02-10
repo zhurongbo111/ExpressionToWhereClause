@@ -13,21 +13,20 @@ namespace ExpressionToWhereClause
             sb = new StringBuilder();
         }
 
-        public virtual string GetResult()
+        public virtual StringBuilder GetResult()
         {
-            string sql = sb.ToString();
            
             if (ExpressionEntry.NonParametric != null && ExpressionEntry.NonParametric.Value)
             {
                 foreach (var kv in ExpressionEntry.Parameters)
                 {
-                    sql = sql.Replace($"{kv.Key}", $"'{kv.Value.ToString()}'");
-                    sql = sql.Replace("%''", "%");
-                    sql = sql.Replace("''%", "%");
+                    sb = sb.Replace($"{kv.Key}", $"'{kv.Value.ToString()}'");
+                    sb = sb.Replace("%''", "%");
+                    sb = sb.Replace("''%", "%");
                 }
                 ExpressionEntry.Parameters.Clear();
             }
-            return sql;
+            return sb;
         }
 
         protected string ConvertExpressionTypeToSymbol(ExpressionType expressionType)

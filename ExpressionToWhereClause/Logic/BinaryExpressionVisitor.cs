@@ -15,12 +15,12 @@ namespace ExpressionToWhereClause
             }
             else if (IsLogicType(node.NodeType))
             {
-                string leftClause = ExpressionEntry.GetWhereClauseByExpression(node.Left);
+                var leftClause = ExpressionEntry.GetWhereClauseByExpression(node.Left);
                 sb.Append($"({leftClause})");
 
                 sb.Append($" {ConvertExpressionTypeToSymbol(node.NodeType)} ");
 
-                string rightClause = ExpressionEntry.GetWhereClauseByExpression(node.Right);
+                var rightClause = ExpressionEntry.GetWhereClauseByExpression(node.Right);
                 sb.Append($"({rightClause})");
             }
             else
@@ -34,7 +34,7 @@ namespace ExpressionToWhereClause
         {
             MemberExpressionVisitor memberExpressionVisitor = new MemberExpressionVisitor();
             memberExpressionVisitor.Visit(node.Left);
-            string fieldName = memberExpressionVisitor.GetResult();
+            string fieldName = memberExpressionVisitor.GetResult().ToString();
             string parameterName = ExpressionEntry.EnsureKey(fieldName);
             string sql = $"{fieldName} {ConvertExpressionTypeToSymbol(node.NodeType)} @{parameterName}";
             ExpressionEntry.Parameters.Add($"@{parameterName}", ExpressionEntry.GetConstantByExpression(node.Right));
