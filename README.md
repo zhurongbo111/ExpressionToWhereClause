@@ -316,7 +316,7 @@ public class ExpressionTest
     }
 
     [TestMethod]
-    public void ValidateFieldNameSelector()
+    public void ValidateSqlAdapter()
     {
         ExpressionConfigurations.SetSqlAdapter(new SqlServerAdapter());
         Expression<Func<User, bool>> expression = u => u.Name == "Foo";
