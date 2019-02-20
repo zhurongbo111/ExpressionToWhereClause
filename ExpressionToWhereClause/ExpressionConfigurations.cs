@@ -9,9 +9,9 @@ namespace ExpressionToWhereClause
     {
         static internal bool? NonParametric = null;
 
-        public static void SetFieldNameSelector(Func<System.Reflection.MemberInfo, string> fieldNameSelector )
+        public static void SetSqlAdapter(ISqlAdapter sqlAdapter)
         {
-            ExpressionEntry.FieldNameSelector = fieldNameSelector;
+            ExpressionEntry.SqlAdapter = sqlAdapter;
         }
 
         /// <summary>
