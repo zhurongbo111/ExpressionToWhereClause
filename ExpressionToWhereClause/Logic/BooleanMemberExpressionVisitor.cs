@@ -18,7 +18,7 @@ namespace ExpressionToWhereClause
             string fieldName = GetResult().ToString();
             sb.Clear();
 
-            string parameterName = ExpressionEntry.EnsureKey(fieldName);
+            string parameterName = ExpressionEntry.EnsurePatameter(MemberInfo);
             sb.Append($"{fieldName} = @{parameterName}");
             ExpressionEntry.Parameters.Add($"@{parameterName}", GetConstant());
             return node;

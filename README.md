@@ -318,22 +318,12 @@ public class ExpressionTest
     [TestMethod]
     public void ValidateFieldNameSelector()
     {
-        ExpressionConfigurations.SetFieldNameSelector(memberInfo => {
-            if (memberInfo.IsDefined(typeof(ColumnAttribute)))
-            {
-                ColumnAttribute columnAttribute = memberInfo.GetCustomAttribute<ColumnAttribute>();
-                return columnAttribute.Name;
-            }
-            else
-            {
-                return memberInfo.Name;
-            }
-        });
-        Expression<Func<User, bool>> expression = u => u.Name == "Name";
+        ExpressionConfigurations.SetSqlAdapter(new SqlServerAdapter());
+        Expression<Func<User, bool>> expression = u => u.Name == "Foo";
         (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause();
         Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
-        expectedParameters.Add("@Username", "Name");
-        Assert.AreEqual("Username = @Username", whereClause);
+        expectedParameters.Add("@Name", "Foo");
+        Assert.AreEqual("[Username] = @Name", whereClause);
         AssertParameters(expectedParameters, parameters);
     }
 
@@ -442,11 +432,26 @@ public class ExpressionTest
         Assert.AreEqual(count*2, countList.Count);
     }
 
-
     [TestCleanup]
-    public void Cleanup()
+    public void TestCleanup()
     {
-        ExpressionConfigurations.SetFieldNameSelector(null);
+        ExpressionConfigurations.SetSqlAdapter(new DefaultSqlAdapter());
+    }
+
+    public class SqlServerAdapter : DefaultSqlAdapter
+    {
+        public override string GetColumnName(MemberInfo mi)
+        {
+            if (mi.IsDefined(typeof(ColumnAttribute)))
+            {
+                ColumnAttribute columnAttribute = mi.GetCustomAttribute<ColumnAttribute>();
+                return $"[{columnAttribute.Name}]";
+            }
+            else
+            {
+                return $"[{mi.Name}]";
+            }
+        }
     }
 
     private int GetInt()
