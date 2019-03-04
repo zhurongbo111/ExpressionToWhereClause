@@ -35,7 +35,7 @@ namespace ExpressionToWhereClause
             MemberExpressionVisitor memberExpressionVisitor = new MemberExpressionVisitor();
             memberExpressionVisitor.Visit(node.Left);
             string fieldName = memberExpressionVisitor.GetResult().ToString();
-            string parameterName = ExpressionEntry.EnsureKey(fieldName);
+            string parameterName = ExpressionEntry.EnsurePatameter(memberExpressionVisitor.MemberInfo);
             string sql = $"{fieldName} {ConvertExpressionTypeToSymbol(node.NodeType)} @{parameterName}";
             ExpressionEntry.Parameters.Add($"@{parameterName}", ExpressionEntry.GetConstantByExpression(node.Right));
             return sql;

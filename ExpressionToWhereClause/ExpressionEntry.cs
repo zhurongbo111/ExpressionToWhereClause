@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 
 namespace ExpressionToWhereClause
@@ -25,7 +26,7 @@ namespace ExpressionToWhereClause
         [ThreadStatic]
         internal static bool? NonParametric = null;
 
-        internal static Func<System.Reflection.MemberInfo, string> FieldNameSelector = null;
+        internal static ISqlAdapter SqlAdapter = new DefaultSqlAdapter();
 
         private string whereClause = string.Empty;
 
@@ -51,8 +52,9 @@ namespace ExpressionToWhereClause
             return node;
         }
 
-        internal static string EnsureKey(string key)
+        internal static string EnsurePatameter(MemberInfo mi)
         {
+            string key = SqlAdapter.GetParameterName(mi);
             int seed = 1;
             while (Parameters.ContainsKey($"@{key}"))
             {

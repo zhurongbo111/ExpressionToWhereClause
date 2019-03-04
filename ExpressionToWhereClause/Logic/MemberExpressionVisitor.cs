@@ -11,9 +11,11 @@ namespace ExpressionToWhereClause
         protected override Expression VisitMember(MemberExpression node)
         {
             MemberInfo memberInfo = node.Member;
-            sb.Append(ExpressionEntry.FieldNameSelector == null ? 
-                memberInfo.Name : ExpressionEntry.FieldNameSelector.Invoke(memberInfo));
+            sb.Append(ExpressionEntry.SqlAdapter.GetColumnName(memberInfo));
+            MemberInfo = memberInfo;
             return node;
         }
+
+        public MemberInfo MemberInfo { get; private set; }
     }
 }
