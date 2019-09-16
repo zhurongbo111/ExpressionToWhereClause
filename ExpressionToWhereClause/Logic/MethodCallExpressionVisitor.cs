@@ -7,6 +7,10 @@ namespace ExpressionToWhereClause
 {
     internal class MethodCallExpressionVisitor : BaseExpressionVisitor
     {
+        public MethodCallExpressionVisitor(bool? nonParametric, Dictionary<string, object> parameters, ISqlAdapter sqlAdapter) : base(nonParametric, parameters,sqlAdapter)
+        {
+
+        }
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             string symbol = string.Empty;
@@ -30,13 +34,13 @@ namespace ExpressionToWhereClause
 
             if (node.Object is MemberExpression)
             {
-                MemberExpressionVisitor memberExpressionVisitor = new MemberExpressionVisitor();
+                MemberExpressionVisitor memberExpressionVisitor = new MemberExpressionVisitor(NonParametric, Parameters, SqlAdapter);
                 memberExpressionVisitor.Visit(node.Object);
                 string fieldName = memberExpressionVisitor.GetResult().ToString();
-                string parameterName = ExpressionEntry.EnsurePatameter(memberExpressionVisitor.MemberInfo);
+                string parameterName = EnsurePatameter(memberExpressionVisitor.MemberInfo);
                 string sql = string.Format($"{fieldName} {symbol}", $"@{parameterName}");
                 sb.Append(sql);
-                ExpressionEntry.Parameters.Add($"@{parameterName}", ExpressionEntry.GetConstantByExpression(node.Arguments[0]));
+                Parameters.Add($"@{parameterName}", ExpressionEntry.GetConstantByExpression(node.Arguments[0]));
             }
             
             return node;

@@ -9,9 +9,11 @@ namespace ExpressionToWhereClause
     {
         static internal bool? NonParametric = null;
 
+        static internal ISqlAdapter Adapter = new DefaultSqlAdapter();
+
         public static void SetSqlAdapter(ISqlAdapter sqlAdapter)
         {
-            ExpressionEntry.SqlAdapter = sqlAdapter;
+            Adapter = sqlAdapter ?? new DefaultSqlAdapter();
         }
 
         /// <summary>

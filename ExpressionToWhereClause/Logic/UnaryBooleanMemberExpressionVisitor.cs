@@ -7,6 +7,10 @@ namespace ExpressionToWhereClause
 {
     internal class UnaryBooleanMemberExpressionVisitor : BooleanMemberExpressionVisitor
     {
+        public UnaryBooleanMemberExpressionVisitor(bool? nonParametric, Dictionary<string, object> parameters, ISqlAdapter sqlAdapter) : base(nonParametric, parameters, sqlAdapter)
+        {
+
+        }
         protected override bool GetConstant()
         {
             return false;

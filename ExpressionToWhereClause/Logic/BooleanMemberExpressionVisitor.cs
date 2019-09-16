@@ -7,6 +7,10 @@ namespace ExpressionToWhereClause
 {
     internal class BooleanMemberExpressionVisitor : MemberExpressionVisitor
     {
+        public BooleanMemberExpressionVisitor(bool? nonParametric, Dictionary<string, object> parameters, ISqlAdapter sqlAdapter) : base(nonParametric, parameters, sqlAdapter)
+        {
+
+        }
         protected virtual bool GetConstant()
         {
             return true;
@@ -18,9 +22,9 @@ namespace ExpressionToWhereClause
             string fieldName = GetResult().ToString();
             sb.Clear();
 
-            string parameterName = ExpressionEntry.EnsurePatameter(MemberInfo);
+            string parameterName = EnsurePatameter(MemberInfo);
             sb.Append($"{fieldName} = @{parameterName}");
-            ExpressionEntry.Parameters.Add($"@{parameterName}", GetConstant());
+            Parameters.Add($"@{parameterName}", GetConstant());
             return node;
         }
     }

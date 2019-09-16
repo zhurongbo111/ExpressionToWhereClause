@@ -8,10 +8,14 @@ namespace ExpressionToWhereClause
 {
     internal class MemberExpressionVisitor : BaseExpressionVisitor
     {
+        public MemberExpressionVisitor(bool? nonParametric, Dictionary<string, object> parameters, ISqlAdapter sqlAdapter) : base(nonParametric, parameters, sqlAdapter)
+        {
+
+        }
         protected override Expression VisitMember(MemberExpression node)
         {
             MemberInfo memberInfo = node.Member;
-            sb.Append(ExpressionEntry.SqlAdapter.GetColumnName(memberInfo));
+            sb.Append(SqlAdapter.GetColumnName(memberInfo));
             MemberInfo = memberInfo;
             return node;
         }

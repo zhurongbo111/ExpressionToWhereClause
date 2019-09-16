@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 
 namespace ExpressionToWhereClause
@@ -8,23 +10,32 @@ namespace ExpressionToWhereClause
     {
         protected StringBuilder sb;
 
-        public BaseExpressionVisitor()
+        protected bool? NonParametric;
+
+        protected Dictionary<string, object> Parameters;
+
+        protected ISqlAdapter SqlAdapter;
+
+        public BaseExpressionVisitor(bool? nonParametric, Dictionary<string,object> parameters, ISqlAdapter sqlAdapter)
         {
             sb = new StringBuilder();
+            NonParametric = nonParametric;
+            Parameters = parameters;
+            SqlAdapter = sqlAdapter;
         }
 
         public virtual StringBuilder GetResult()
         {
            
-            if (ExpressionEntry.NonParametric != null && ExpressionEntry.NonParametric.Value)
+            if (NonParametric != null && NonParametric.Value)
             {
-                foreach (var kv in ExpressionEntry.Parameters)
+                foreach (var kv in Parameters)
                 {
                     sb = sb.Replace($"{kv.Key}", $"'{kv.Value.ToString()}'");
                     sb = sb.Replace("%''", "%");
                     sb = sb.Replace("''%", "%");
                 }
-                ExpressionEntry.Parameters.Clear();
+                Parameters.Clear();
             }
             return sb;
         }
@@ -80,6 +91,18 @@ namespace ExpressionToWhereClause
                 default:
                     return false;
             }
+        }
+
+        protected string EnsurePatameter(MemberInfo mi)
+        {
+            string key = SqlAdapter.GetParameterName(mi);
+            int seed = 1;
+            while (Parameters.ContainsKey($"@{key}"))
+            {
+                key = key + seed;
+                seed++;
+            }
+            return key;
         }
     }
 }
