@@ -8,61 +8,31 @@ namespace ExpressionToWhereClause
 {
     internal class ExpressionEntry : ExpressionVisitor
     {
-        [ThreadStatic]
-        private static Dictionary<string, object> _parameters = null;
-        
-        internal static Dictionary<string, object> Parameters
+        private Dictionary<string, object> _parameters = null;
+        private bool? NonParametric = null;
+        private ISqlAdapter SqlAdapter = null;
+
+        public ExpressionEntry(bool? nonParametric, ISqlAdapter sqlAdapter)
         {
-            get
-            {
-                if(_parameters == null)
-                {
-                    _parameters = new Dictionary<string, object>();
-                }
-                return _parameters;
-            }
+            _parameters = new Dictionary<string, object>();
+            NonParametric = nonParametric;
+            SqlAdapter = sqlAdapter;
         }
-
-        [ThreadStatic]
-        internal static bool? NonParametric = null;
-
-        internal static ISqlAdapter SqlAdapter = new DefaultSqlAdapter();
+        
 
         private string whereClause = string.Empty;
 
         public (string,Dictionary<string,object>) GetResult()
-        {
-            Dictionary<string, object> CloneParameters(Dictionary<string, object> parameters)
-            {
-                Dictionary<string, object> clonedParameters = new Dictionary<string, object>();
-                foreach (var keyvaluePair in parameters)
-                {
-                    clonedParameters.Add(keyvaluePair.Key, keyvaluePair.Value);
-                }
-                return clonedParameters;
-            }
-            var clonePara = CloneParameters(Parameters);
-            Parameters.Clear();
-            return (whereClause, clonePara);
+        {            
+            return (whereClause, _parameters);
         }
 
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
-            whereClause = GetWhereClauseByExpression(node.Body).ToString();
+            whereClause = GetWhereClauseByExpression(node.Body, _parameters, NonParametric, SqlAdapter).ToString();
             return node;
         }
 
-        internal static string EnsurePatameter(MemberInfo mi)
-        {
-            string key = SqlAdapter.GetParameterName(mi);
-            int seed = 1;
-            while (Parameters.ContainsKey($"@{key}"))
-            {
-                key = key + seed;
-                seed++;
-            }
-            return key;
-        }
 
         internal static object GetConstantByExpression(Expression expression)
         {
@@ -95,26 +65,26 @@ namespace ExpressionToWhereClause
             return constantExpressionVisitor.Value;
         }
 
-        internal static StringBuilder GetWhereClauseByExpression(Expression expression)
+        internal static StringBuilder GetWhereClauseByExpression(Expression expression,Dictionary<string,object> p, bool? nonP, ISqlAdapter sqlAdapter)
         {
             BaseExpressionVisitor expressionVisitor = null;
             if (expression is BinaryExpression)
             {
-                expressionVisitor = new BinaryExpressionVisitor();
+                expressionVisitor = new BinaryExpressionVisitor(nonP,p,sqlAdapter);
             }
             else if (expression is MemberExpression)
             {
-                expressionVisitor = new BooleanMemberExpressionVisitor();
+                expressionVisitor = new BooleanMemberExpressionVisitor(nonP,p,sqlAdapter);
             }
             else if (expression is MethodCallExpression)
             {
-                expressionVisitor = new MethodCallExpressionVisitor();
+                expressionVisitor = new MethodCallExpressionVisitor(nonP, p, sqlAdapter);
             }
             else if (expression is UnaryExpression unaryExpression
                 && unaryExpression.Operand is MemberExpression
                 && unaryExpression.Type == typeof(bool))
             {
-                expressionVisitor = new UnaryBooleanMemberExpressionVisitor();
+                expressionVisitor = new UnaryBooleanMemberExpressionVisitor(nonP, p, sqlAdapter);
             }
             else
             {

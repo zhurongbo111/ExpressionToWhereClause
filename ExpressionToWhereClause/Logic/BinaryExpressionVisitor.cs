@@ -7,6 +7,11 @@ namespace ExpressionToWhereClause
 {
     internal class BinaryExpressionVisitor : BaseExpressionVisitor
     {
+        public BinaryExpressionVisitor(bool? nonParametric, Dictionary<string, object> parameters, ISqlAdapter sqlAdapter) : base(nonParametric, parameters, sqlAdapter)
+        {
+
+        }
+
         protected override Expression VisitBinary(BinaryExpression node)
         {
             if (node.Left is MemberExpression && IsDataComparator(node.NodeType))
@@ -15,12 +20,12 @@ namespace ExpressionToWhereClause
             }
             else if (IsLogicType(node.NodeType))
             {
-                var leftClause = ExpressionEntry.GetWhereClauseByExpression(node.Left);
+                var leftClause = ExpressionEntry.GetWhereClauseByExpression(node.Left,Parameters, NonParametric,SqlAdapter);
                 sb.Append($"({leftClause})");
 
                 sb.Append($" {ConvertExpressionTypeToSymbol(node.NodeType)} ");
 
-                var rightClause = ExpressionEntry.GetWhereClauseByExpression(node.Right);
+                var rightClause = ExpressionEntry.GetWhereClauseByExpression(node.Right,Parameters, NonParametric,SqlAdapter);
                 sb.Append($"({rightClause})");
             }
             else
@@ -32,12 +37,12 @@ namespace ExpressionToWhereClause
 
         private string InternalGetSqlByExpression(BinaryExpression node)
         {
-            MemberExpressionVisitor memberExpressionVisitor = new MemberExpressionVisitor();
+            MemberExpressionVisitor memberExpressionVisitor = new MemberExpressionVisitor(NonParametric, Parameters,SqlAdapter);
             memberExpressionVisitor.Visit(node.Left);
             string fieldName = memberExpressionVisitor.GetResult().ToString();
-            string parameterName = ExpressionEntry.EnsurePatameter(memberExpressionVisitor.MemberInfo);
+            string parameterName = EnsurePatameter(memberExpressionVisitor.MemberInfo);
             string sql = $"{fieldName} {ConvertExpressionTypeToSymbol(node.NodeType)} @{parameterName}";
-            ExpressionEntry.Parameters.Add($"@{parameterName}", ExpressionEntry.GetConstantByExpression(node.Right));
+            Parameters.Add($"@{parameterName}", ExpressionEntry.GetConstantByExpression(node.Right));
             return sql;
         }
     }
