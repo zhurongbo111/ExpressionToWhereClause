@@ -6,9 +6,9 @@ namespace ExpressionToWhereClause
 {
     public class WhereClauseAdhesive
     {
-        public WhereClauseAdhesive(ISqlAdapter sqlAdapter, Dictionary<string, object> parameters = null)
+        public WhereClauseAdhesive(ISqlAdapter sqlAdapter, Dictionary<string, object> parameters)
         {
-            Parameters = parameters ?? new Dictionary<string, object>();
+            Parameters = parameters;
             SqlAdapter = sqlAdapter;
         }
 

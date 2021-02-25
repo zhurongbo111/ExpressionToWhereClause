@@ -7,10 +7,11 @@
     <Description>A simple tool library for converting the Expression to sql where clause. Welcome to open issue in https://github.com/zhurongbo111/ExpressionToWhereClause/issues</Description>
     <PackageProjectUrl>https://github.com/zhurongbo111/ExpressionToWhereClause</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/zhurongbo111/ExpressionToWhereClause/blob/master/LICENSE</PackageLicenseUrl>
-    <Copyright>Copyright (c) 2019 Gary</Copyright>
+    <Copyright>Copyright (c) 2019-2021 Gary</Copyright>
     <PackageTags>Expression,sql,netcore,whereclause,expression2sql</PackageTags>
     <Company>Gary</Company>
-    <PackageReleaseNotes>Add SqlAdapter to support different databases</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <Version>2.0.0</Version>
   </PropertyGroup>
 
 </Project>
