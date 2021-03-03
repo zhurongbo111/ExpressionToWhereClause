@@ -27,7 +27,7 @@ jobs:
       uses: rohith/publish-nuget@v2.2.1
       with:
         PROJECT_FILE_PATH: ExpressionToWhereClause/ExpressionToWhereClause.csproj
-        TAG_COMMIT: false
+        TAG_COMMIT: true
         VERSION_FILE_PATH: ExpressionToWhereClause/ExpressionToWhereClause.csproj
         VERSION_REGEX: <Version>(.*)<\/Version>
         NUGET_KEY: ${{ secrets.NugetKey }} 
