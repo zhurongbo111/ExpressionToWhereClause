@@ -21,7 +21,7 @@ It provides only one Method:
 **Explain of Type `Expression<Func<TModel, bool>>` to the `parametric` sql where clause and the parameter list**
 
 ```csharp
- public static (string, Dictionary<string, object>) ToWhereClause<T>(this Expression<Func<T, bool>> expression, bool? nonParametric = null) where T : class
+ public static (string, Dictionary<string, object>) ToWhereClause<T>(this Expression<Func<T, bool>> expression, ISqlAdapter sqlAdapter = default) where T : class
 ```
 
 The the right part of `Func<TModel, bool>` must like:
