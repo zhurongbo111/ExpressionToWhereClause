@@ -39,7 +39,7 @@ u.Name == "Foo" || u.Name == "Bar"
 
 The `[Value]` can be from many places, not only the constant. For the detailed information, please see the example usage.
 
-![#f03c15](https://placehold.it/15/f03c15/000000?text=+)  Warning: This library dose not support unary, like `u => !(u.Name == "Foo")`, but support `u => u.Name != "Foo"` and `u => !u.Sex` Sex is bool type
+Warning: This library dose not support unary, like `u => !(u.Name == "Foo")`, but support `u => u.Name != "Foo"` and `u => !u.Sex` Sex is bool type
 --------
 
 
