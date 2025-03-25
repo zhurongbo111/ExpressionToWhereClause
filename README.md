@@ -1,8 +1,6 @@
 # ExpressionToWhereClause.Net 
 A simple tool library for converting the Expression to sql where clause
 
-[![nuget publish](https://github.com/zhurongbo111/ExpressionToWhereClause/actions/workflows/dotnet-core.yml/badge.svg)](https://github.com/zhurongbo111/ExpressionToWhereClause/actions/workflows/dotnet-core.yml)
-
 Packages
 --------
 
