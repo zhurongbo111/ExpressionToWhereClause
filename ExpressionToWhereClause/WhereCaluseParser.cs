@@ -46,33 +46,24 @@ namespace ExpressionToWhereClause
             }
             else if (expression is MethodCallExpression methodCallExpression)
             {
-                if (methodCallExpression.Method.DeclaringType == typeof(string)
-                    && (methodCallExpression.Method.Name == "Contains"
-                      || methodCallExpression.Method.Name == "StartsWith"
-                      || methodCallExpression.Method.Name == "EndsWith")
-                      || methodCallExpression.Method.Name == "Equals")
+                if (IsLikeOrEqualMethod(methodCallExpression))
                 {
                     //"Like" condition for string property, For example: u.Name.Contains("A")
-                    return ConditionBuilder.BuildLikeOrEqualCondition(methodCallExpression, adhesive);
+                    return ConditionBuilder.BuildLikeOrEqualCondition(methodCallExpression, adhesive, false);
                 }
-                else if (methodCallExpression.Method.DeclaringType == typeof(System.Linq.Enumerable)
-                    && methodCallExpression.Arguments?.Count == 2
-                    && methodCallExpression.Method.Name == "Contains")
+                else if (IsIEnumerableContains(methodCallExpression))
+                {
+                    //"In" Condition, Support the `Contains` Method of List<T> type
+                    //For example: string[] values = new string[]{ "foo", "bar"};
+                    //             values.Contains(u.Name) 
+                    return ConditionBuilder.BuildInCondition(methodCallExpression.Arguments[1] as MemberExpression, methodCallExpression.Arguments[0], adhesive, false);
+                }
+                else if (IsListContains(methodCallExpression))
                 {
                     //"In" condition, Support the `Contains` extension Method of IEnumerable<TSource> Type
                     //For example: List<string> values = new List<string> { "foo", "bar"};
                     //             values.Contains(u.Name)  
-                    return ConditionBuilder.BuildInCondition(methodCallExpression.Arguments[1] as MemberExpression, methodCallExpression.Arguments[0], adhesive);
-                }
-                else if (methodCallExpression.Method.DeclaringType.IsGenericType
-                    && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>)
-                    && methodCallExpression.Arguments?.Count == 1
-                    && methodCallExpression.Method.Name == "Contains")
-                {
-                    //"In" Condition, Support the `Contains` Method of List<T> type
-                    //For example: string[] values = new string[]{ "foo", "bar"};
-                    //             values.Contains(u.Name)  
-                    return ConditionBuilder.BuildInCondition(methodCallExpression.Arguments[0] as MemberExpression, methodCallExpression.Object, adhesive);
+                    return ConditionBuilder.BuildInCondition(methodCallExpression.Arguments[0] as MemberExpression, methodCallExpression.Object, adhesive, false);
                 }
                 else
                 {
@@ -86,11 +77,33 @@ namespace ExpressionToWhereClause
             }
             else if (expression is UnaryExpression unaryExpression
                 && unaryExpression.NodeType == ExpressionType.Not
-                && unaryExpression.Operand is MemberExpression falseMemberExpression
                 && unaryExpression.Type == typeof(bool))
             {
-                //Support bool type property, For example: !u.Sex
-                return ConditionBuilder.BuildCondition(falseMemberExpression.Member, adhesive, ExpressionType.Equal, false);
+                if (unaryExpression.Operand is MemberExpression falseMemberExpression)
+                {
+                    //Support bool type property, For example: !u.Sex
+                    return ConditionBuilder.BuildCondition(falseMemberExpression.Member, adhesive, ExpressionType.Equal, false);
+                }
+                else if(unaryExpression.Operand is MethodCallExpression containsMethodCallExpression
+                    && IsIEnumerableContains(containsMethodCallExpression))
+                {
+                    return ConditionBuilder.BuildInCondition(containsMethodCallExpression.Arguments[1] as MemberExpression, containsMethodCallExpression.Arguments[0], adhesive, true);
+                }
+                else if (unaryExpression.Operand is MethodCallExpression listContainsMethodCallExpression
+                    && IsListContains(listContainsMethodCallExpression))
+                { 
+                    return ConditionBuilder.BuildInCondition(listContainsMethodCallExpression.Arguments[0] as MemberExpression, listContainsMethodCallExpression.Object, adhesive, true);
+                }
+                else if(unaryExpression.Operand is MethodCallExpression likeMethodCallExpression
+                    && IsLikeOrEqualMethod(likeMethodCallExpression))
+                {
+                    return ConditionBuilder.BuildLikeOrEqualCondition(likeMethodCallExpression, adhesive, true);
+                }
+                else
+                {
+                    throw new NotSupportedException();
+                }
+ 
             }
             else
             {
@@ -137,6 +150,30 @@ namespace ExpressionToWhereClause
                 default:
                     throw new NotSupportedException($"Unknown ExpressionType {expressionType}");
             }
+        }
+
+        private static bool IsIEnumerableContains(MethodCallExpression methodCallExpression)
+        {
+            return methodCallExpression.Method.DeclaringType == typeof(System.Linq.Enumerable)
+                    && methodCallExpression.Arguments?.Count == 2
+                    && methodCallExpression.Method.Name == "Contains";
+        }
+
+        private static bool IsListContains(MethodCallExpression methodCallExpression)
+        {
+            return methodCallExpression.Method.DeclaringType.IsGenericType
+                    && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>)
+                    && methodCallExpression.Arguments?.Count == 1
+                    && methodCallExpression.Method.Name == "Contains";
+        }
+
+        private static bool IsLikeOrEqualMethod(MethodCallExpression methodCallExpression)
+        {
+            return methodCallExpression.Method.DeclaringType == typeof(string)
+                    && (methodCallExpression.Method.Name == "Contains"
+                      || methodCallExpression.Method.Name == "StartsWith"
+                      || methodCallExpression.Method.Name == "EndsWith")
+                      || methodCallExpression.Method.Name == "Equals";
         }
     }
 }

@@ -11,7 +11,8 @@
     <PackageTags>Expression,sql,netcore,whereclause,expression2sql</PackageTags>
     <Company>Gary</Company>
     <PackageReleaseNotes></PackageReleaseNotes>
-    <Version>2.0.0</Version>
+    <Version>2.1.0</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
 </Project>

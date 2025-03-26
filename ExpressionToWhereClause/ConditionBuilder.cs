@@ -16,7 +16,7 @@ namespace ExpressionToWhereClause
             return new StringBuilder($"{fieldName} {comparison.ToComparisonSymbol()} @{parameterName}");
         }
 
-        public static StringBuilder BuildLikeOrEqualCondition(MethodCallExpression methodCallExpression, WhereClauseAdhesive adhesive)
+        public static StringBuilder BuildLikeOrEqualCondition(MethodCallExpression methodCallExpression, WhereClauseAdhesive adhesive, bool isNotLike)
         {
             string symbol;
             string valueSymbol;
@@ -27,15 +27,15 @@ namespace ExpressionToWhereClause
                     valueSymbol = "{0}";
                     break;
                 case "StartsWith":
-                    symbol = "like {0}";
+                    symbol = isNotLike ? "not like {0}" : "like {0}";
                     valueSymbol = "{0}%";
                     break;
                 case "EndsWith":
-                    symbol = "like {0}";
+                    symbol = isNotLike ? "not like {0}" : "like {0}";
                     valueSymbol = "%{0}";
                     break;
                 case "Contains":
-                    symbol = "like {0}";
+                    symbol = isNotLike ? "not like {0}" : "like {0}";
                     valueSymbol = "%{0}%";
                     break;
                 default:
@@ -57,14 +57,14 @@ namespace ExpressionToWhereClause
             }
         }
 
-        public static StringBuilder BuildInCondition(MemberExpression memberExpression, Expression valueExpression, WhereClauseAdhesive adhesive)
+        public static StringBuilder BuildInCondition(MemberExpression memberExpression, Expression valueExpression, WhereClauseAdhesive adhesive, bool isNotContains)
         {
             var memberInfo = memberExpression.Member;
             string fieldName = adhesive.SqlAdapter.FormatColumnName(memberInfo);
             string parameterName = EnsureParameter(memberInfo, adhesive);
             object value = ConstantExtractor.ParseConstant(valueExpression);
             adhesive.Parameters.Add($"@{parameterName}", value);
-            return new StringBuilder(string.Format("{0} in {1}", fieldName, $"@{parameterName}"));
+            return isNotContains ? new StringBuilder(string.Format("{0} not in {1}", fieldName, $"@{parameterName}")) : new StringBuilder(string.Format("{0} in {1}", fieldName, $"@{parameterName}"));
         }
 
         private static string EnsureParameter(MemberInfo mi, WhereClauseAdhesive adhesive)
