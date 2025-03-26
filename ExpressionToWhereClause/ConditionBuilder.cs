@@ -57,14 +57,14 @@ namespace ExpressionToWhereClause
             }
         }
 
-        public static StringBuilder BuildInCondition(MemberExpression memberExpression, Expression valueExpression, WhereClauseAdhesive adhesive)
+        public static StringBuilder BuildInCondition(MemberExpression memberExpression, Expression valueExpression, WhereClauseAdhesive adhesive, bool isNotContains)
         {
             var memberInfo = memberExpression.Member;
             string fieldName = adhesive.SqlAdapter.FormatColumnName(memberInfo);
             string parameterName = EnsureParameter(memberInfo, adhesive);
             object value = ConstantExtractor.ParseConstant(valueExpression);
             adhesive.Parameters.Add($"@{parameterName}", value);
-            return new StringBuilder(string.Format("{0} in {1}", fieldName, $"@{parameterName}"));
+            return isNotContains ? new StringBuilder(string.Format("{0} not in {1}", fieldName, $"@{parameterName}")) : new StringBuilder(string.Format("{0} in {1}", fieldName, $"@{parameterName}"));
         }
 
         private static string EnsureParameter(MemberInfo mi, WhereClauseAdhesive adhesive)

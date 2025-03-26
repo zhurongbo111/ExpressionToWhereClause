@@ -326,6 +326,30 @@ namespace ExpressionToWhereClause.Test
         }
 
         [TestMethod]
+        public void ValidateNotArrayIn()
+        {
+            List<string> values = new List<string> { "a", "b" };
+            Expression<Func<User, bool>> expression = u => !values.Contains(u.Name);
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause(new TestSqlAdapter());
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            Assert.AreEqual("Name not in @Name", whereClause);
+            Assert.IsTrue(parameters["@Name"] is List<string>);
+            Assert.AreEqual(string.Join(',', values), string.Join(',', (List<string>)parameters["@Name"]));
+        }
+
+        [TestMethod]
+        public void ValidateEnumerableNotIn()
+        {
+            string[] values = new string[] { "a", "b" };
+            Expression<Func<User, bool>> expression = u => !values.Contains(u.Name);
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause(new TestSqlAdapter());
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            Assert.AreEqual("Name not in @Name", whereClause);
+            Assert.IsTrue(parameters["@Name"] is string[]);
+            Assert.AreEqual(string.Join(',', values), string.Join(',', (string[])parameters["@Name"]));
+        }
+
+        [TestMethod]
         public void ValidateEnum()
         {
             Expression<Func<User, bool>> expression = u => u.Sex2 == Sex.Female;
