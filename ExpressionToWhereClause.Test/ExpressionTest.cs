@@ -227,6 +227,19 @@ namespace ExpressionToWhereClause.Test
         }
 
         [TestMethod]
+        public void ValidateNotStartsWithMethod()
+        {
+            UserFilter filter = new UserFilter();
+            filter.Name = "Name";
+            Expression<Func<User, bool>> expression = u => !u.Name.StartsWith(filter.Name);
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause(new TestSqlAdapter());
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            expectedParameters.Add("@Name", "Name%");
+            Assert.AreEqual("Name not like @Name", whereClause);
+            AssertParameters(expectedParameters, parameters);
+        }
+
+        [TestMethod]
         public void ValidateStartWith2()
         {
             UserFilter filter = new UserFilter();
@@ -237,6 +250,20 @@ namespace ExpressionToWhereClause.Test
             expectedParameters.Add("@Name", "Name%");
             expectedParameters.Add("@Name1", "%Start%");
             Assert.AreEqual("(Name like @Name) OR (Name like @Name1)", whereClause);
+            AssertParameters(expectedParameters, parameters);
+        }
+
+        [TestMethod]
+        public void ValidateNotStartWith2()
+        {
+            UserFilter filter = new UserFilter();
+            filter.Name = "Name";
+            Expression<Func<User, bool>> expression = u => !u.Name.StartsWith(filter.Name) && !u.Name.Contains("Start");
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause(new TestSqlAdapter());
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            expectedParameters.Add("@Name", "Name%");
+            expectedParameters.Add("@Name1", "%Start%");
+            Assert.AreEqual("(Name not like @Name) AND (Name not like @Name1)", whereClause);
             AssertParameters(expectedParameters, parameters);
         }
 
@@ -254,6 +281,19 @@ namespace ExpressionToWhereClause.Test
         }
 
         [TestMethod]
+        public void ValidateNotEndsWithMethod()
+        {
+            UserFilter filter = new UserFilter();
+            filter.Name = "Name";
+            Expression<Func<User, bool>> expression = u => !u.Name.EndsWith(filter.Name);
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause(new TestSqlAdapter());
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            expectedParameters.Add("@Name", "%Name");
+            Assert.AreEqual("Name not like @Name", whereClause);
+            AssertParameters(expectedParameters, parameters);
+        }
+
+        [TestMethod]
         public void ValidateContainsMethod()
         {
             UserFilter filter = new UserFilter();
@@ -263,6 +303,19 @@ namespace ExpressionToWhereClause.Test
             Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
             expectedParameters.Add("@Name", "%Name%");
             Assert.AreEqual("Name like @Name", whereClause);
+            AssertParameters(expectedParameters, parameters);
+        }
+
+        [TestMethod]
+        public void ValidateNotContainsMethod()
+        {
+            UserFilter filter = new UserFilter();
+            filter.Name = "Name";
+            Expression<Func<User, bool>> expression = u => !u.Name.Contains(filter.Name);
+            (string whereClause, Dictionary<string, object> parameters) = expression.ToWhereClause(new TestSqlAdapter());
+            Dictionary<string, object> expectedParameters = new Dictionary<string, object>();
+            expectedParameters.Add("@Name", "%Name%");
+            Assert.AreEqual("Name not like @Name", whereClause);
             AssertParameters(expectedParameters, parameters);
         }
 

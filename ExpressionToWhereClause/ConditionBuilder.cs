@@ -16,7 +16,7 @@ namespace ExpressionToWhereClause
             return new StringBuilder($"{fieldName} {comparison.ToComparisonSymbol()} @{parameterName}");
         }
 
-        public static StringBuilder BuildLikeOrEqualCondition(MethodCallExpression methodCallExpression, WhereClauseAdhesive adhesive)
+        public static StringBuilder BuildLikeOrEqualCondition(MethodCallExpression methodCallExpression, WhereClauseAdhesive adhesive, bool isNotLike)
         {
             string symbol;
             string valueSymbol;
@@ -27,15 +27,15 @@ namespace ExpressionToWhereClause
                     valueSymbol = "{0}";
                     break;
                 case "StartsWith":
-                    symbol = "like {0}";
+                    symbol = isNotLike ? "not like {0}" : "like {0}";
                     valueSymbol = "{0}%";
                     break;
                 case "EndsWith":
-                    symbol = "like {0}";
+                    symbol = isNotLike ? "not like {0}" : "like {0}";
                     valueSymbol = "%{0}";
                     break;
                 case "Contains":
-                    symbol = "like {0}";
+                    symbol = isNotLike ? "not like {0}" : "like {0}";
                     valueSymbol = "%{0}%";
                     break;
                 default:

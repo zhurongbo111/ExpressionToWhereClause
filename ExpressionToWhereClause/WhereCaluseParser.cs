@@ -46,14 +46,10 @@ namespace ExpressionToWhereClause
             }
             else if (expression is MethodCallExpression methodCallExpression)
             {
-                if (methodCallExpression.Method.DeclaringType == typeof(string)
-                    && (methodCallExpression.Method.Name == "Contains"
-                      || methodCallExpression.Method.Name == "StartsWith"
-                      || methodCallExpression.Method.Name == "EndsWith")
-                      || methodCallExpression.Method.Name == "Equals")
+                if (IsLikeOrEqualMethod(methodCallExpression))
                 {
                     //"Like" condition for string property, For example: u.Name.Contains("A")
-                    return ConditionBuilder.BuildLikeOrEqualCondition(methodCallExpression, adhesive);
+                    return ConditionBuilder.BuildLikeOrEqualCondition(methodCallExpression, adhesive, false);
                 }
                 else if (IsIEnumerableContains(methodCallExpression))
                 {
@@ -97,6 +93,11 @@ namespace ExpressionToWhereClause
                     && IsListContains(listContainsMethodCallExpression))
                 { 
                     return ConditionBuilder.BuildInCondition(listContainsMethodCallExpression.Arguments[0] as MemberExpression, listContainsMethodCallExpression.Object, adhesive, true);
+                }
+                else if(unaryExpression.Operand is MethodCallExpression likeMethodCallExpression
+                    && IsLikeOrEqualMethod(likeMethodCallExpression))
+                {
+                    return ConditionBuilder.BuildLikeOrEqualCondition(likeMethodCallExpression, adhesive, true);
                 }
                 else
                 {
@@ -164,6 +165,15 @@ namespace ExpressionToWhereClause
                     && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>)
                     && methodCallExpression.Arguments?.Count == 1
                     && methodCallExpression.Method.Name == "Contains";
+        }
+
+        private static bool IsLikeOrEqualMethod(MethodCallExpression methodCallExpression)
+        {
+            return methodCallExpression.Method.DeclaringType == typeof(string)
+                    && (methodCallExpression.Method.Name == "Contains"
+                      || methodCallExpression.Method.Name == "StartsWith"
+                      || methodCallExpression.Method.Name == "EndsWith")
+                      || methodCallExpression.Method.Name == "Equals";
         }
     }
 }
