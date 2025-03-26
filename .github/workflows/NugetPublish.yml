@@ -1,0 +1,29 @@
+name: Nuget Publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  nuget_publish:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 9.0.*
+
+    - name: Build and Test
+      run: dotnet test -c Release
+
+    - name: pack package
+      run: dotnet pack -c Release
+
+    - name: Publish NuGet
+      run: dotnet nuget push **/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGETKEY }} --skip-duplicate
+          
+
+
