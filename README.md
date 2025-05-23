@@ -1,6 +1,8 @@
 # ExpressionToWhereClause.Net 
 A simple tool library for converting the Expression to sql where clause
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/zhurongbo111/ExpressionToWhereClause)
+
 Packages
 --------
 
